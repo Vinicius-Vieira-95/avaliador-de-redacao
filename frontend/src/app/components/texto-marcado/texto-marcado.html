@@ -1,0 +1,9 @@
+<div class="texto">
+  @for (segmento of segmentos(); track $index) {
+    @if (segmento.marcacao; as m) {
+      <mark [attr.data-ref]="m.ref" class="c{{ m.competencia }}" [class.piscar]="refAtiva() === m.ref">{{ segmento.texto }}<sup>{{ m.ref }}</sup></mark>
+    } @else {
+      <span>{{ segmento.texto }}</span>
+    }
+  }
+</div>

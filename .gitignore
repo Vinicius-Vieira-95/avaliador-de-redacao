@@ -1,0 +1,14 @@
+# Backend
+backend/build/
+backend/.gradle/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# IDEs e segredos
+.idea/
+*.iml
+.vscode/
+.env

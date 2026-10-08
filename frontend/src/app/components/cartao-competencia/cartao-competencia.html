@@ -1,0 +1,38 @@
+@let c = competencia();
+
+<article class="competencia">
+  <div class="topo">
+    <div class="nome">
+      <small>Competência {{ c.numero }}</small>
+      {{ c.nome }}
+    </div>
+    <div class="nota">{{ c.nota }}<small>/{{ notaMaxima }}</small></div>
+  </div>
+
+  <p>{{ c.justificativa }}</p>
+
+  @if (c.pontosFortes.length) {
+    <ul class="fortes">
+      @for (forte of c.pontosFortes; track $index) {
+        <li>{{ forte }}</li>
+      }
+    </ul>
+  }
+
+  @for (ponto of c.pontosDeMelhoria; track $index) {
+    <div class="melhoria">
+      @if (ponto.trecho) {
+        @if (ponto.ref) {
+          <button type="button" class="trecho" (click)="selecionarTrecho.emit(ponto.ref)"
+                  title="Ver no texto">
+            <span class="num-ref">{{ ponto.ref }}</span>“{{ ponto.trecho }}”
+          </button>
+        } @else {
+          <blockquote class="trecho">“{{ ponto.trecho }}”</blockquote>
+        }
+      }
+      <p class="problema">{{ ponto.problema }}</p>
+      <p class="sugestao"><strong>Como melhorar:</strong> {{ ponto.sugestao }}</p>
+    </div>
+  }
+</article>

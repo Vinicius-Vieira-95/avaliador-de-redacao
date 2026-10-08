@@ -1,0 +1,13 @@
+:host { display: block; }
+
+.texto {
+  white-space: pre-wrap; background: #fff; border: 1px solid var(--linha); border-radius: 12px;
+  padding: 18px; line-height: 1.8;
+}
+mark {
+  background: var(--marca-texto); border-radius: 3px; padding: 0 2px;
+  box-shadow: inset 0 -2px 0 var(--cor); color: inherit;
+}
+sup { font-weight: 700; font-size: 11px; margin-left: 2px; color: var(--cor); }
+mark.piscar { animation: pisca 1.2s ease 2; }
+@keyframes pisca { 50% { background: #f59e0b; } }

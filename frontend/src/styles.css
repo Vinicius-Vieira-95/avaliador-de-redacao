@@ -1,0 +1,31 @@
+:root {
+  --papel: #f6f2ea;
+  --cartao: #fffdf8;
+  --tinta: #1f2430;
+  --tinta-suave: #5b6070;
+  --linha: #e3ddd0;
+  --destaque: #c2410c;
+  --destaque-suave: #fdeadf;
+  --azul: #1e3a8a;
+  --ok: #15803d;
+  --marca-texto: #fde68a;
+  --raio: 14px;
+}
+
+/* Cor de cada competência, usada por cartões, barras e marcações via --cor. */
+.c1 { --cor: #2563eb; }
+.c2 { --cor: #7c3aed; }
+.c3 { --cor: #0d9488; }
+.c4 { --cor: #d97706; }
+.c5 { --cor: #dc2626; }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font: 16px/1.55 "Inter", system-ui, sans-serif;
+}
+
+h1, h2, h3 { font-family: "Fraunces", Georgia, serif; }

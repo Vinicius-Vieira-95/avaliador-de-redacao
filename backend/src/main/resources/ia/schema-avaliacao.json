@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["anulada", "motivoAnulacao", "competencias", "comentarioGeral", "proximosPassos"],
+  "properties": {
+    "anulada": { "type": "boolean" },
+    "motivoAnulacao": { "type": "string" },
+    "competencias": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["numero", "nota", "justificativa", "pontosFortes", "pontosDeMelhoria"],
+        "properties": {
+          "numero": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+          "nota": { "type": "integer", "enum": [0, 40, 80, 120, 160, 200] },
+          "justificativa": { "type": "string" },
+          "pontosFortes": { "type": "array", "items": { "type": "string" } },
+          "pontosDeMelhoria": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["trecho", "problema", "sugestao"],
+              "properties": {
+                "trecho": { "type": "string" },
+                "problema": { "type": "string" },
+                "sugestao": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "comentarioGeral": { "type": "string" },
+    "proximosPassos": { "type": "array", "items": { "type": "string" } }
+  }
+}

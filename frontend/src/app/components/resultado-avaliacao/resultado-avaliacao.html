@@ -1,0 +1,43 @@
+@let resultado = avaliacao();
+
+<div class="nota-final">
+  <div>
+    <span class="rotulo">Nota estimada</span>
+    <div class="nota-numero">{{ resultado.notaTotal }}<small>/{{ notaMaxima }}</small></div>
+  </div>
+  <div class="barras" aria-hidden="true">
+    @for (c of resultado.competencias; track c.numero) {
+      <div class="barra c{{ c.numero }}" [title]="'Competência ' + c.numero + ': ' + c.nota">
+        <div class="barra-fundo">
+          <div class="barra-valor" [style.height.%]="(c.nota / notaMaximaCompetencia) * 100"></div>
+        </div>
+        C{{ c.numero }}
+      </div>
+    }
+  </div>
+</div>
+
+@if (resultado.anulada) {
+  <p class="anulada">Redação com nota zero: {{ resultado.motivoAnulacao }}</p>
+}
+
+<p class="comentario">{{ resultado.comentarioGeral }}</p>
+
+@if (resultado.proximosPassos.length) {
+  <h3>Próximos passos</h3>
+  <ol class="passos">
+    @for (passo of resultado.proximosPassos; track $index) {
+      <li>{{ passo }}</li>
+    }
+  </ol>
+}
+
+<h3>Competências</h3>
+@for (competencia of competencias(); track competencia.numero) {
+  <app-cartao-competencia [competencia]="competencia" (selecionarTrecho)="irParaTrecho($event)" />
+}
+
+<h3>Seu texto com os trechos apontados</h3>
+<app-texto-marcado [texto]="texto()" [marcacoes]="marcacoes()" />
+
+<p class="aviso">{{ resultado.aviso }} Modelo: {{ resultado.modelo }}.</p>

@@ -1,0 +1,41 @@
+h2 { margin: 0 0 16px; font-size: 22px; }
+
+label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+
+input, textarea {
+  width: 100%; border: 1px solid var(--linha); border-radius: 10px; background: #fff;
+  padding: 12px 14px; font: inherit; color: inherit; margin-bottom: 16px;
+}
+textarea {
+  resize: vertical; margin-bottom: 6px; line-height: 1.7;
+  background-image: linear-gradient(transparent calc(1.7em - 1px), #eef0f5 1px);
+  background-size: 100% 1.7em; background-attachment: local;
+}
+input:focus, textarea:focus { outline: 2px solid var(--azul); outline-offset: 1px; border-color: transparent; }
+input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(--destaque); }
+
+.campo-erro { margin: -10px 0 14px; font-size: 13px; color: var(--destaque); }
+
+.rotulo-linha { display: flex; justify-content: space-between; align-items: baseline; }
+.link {
+  background: none; border: 0; color: var(--azul); cursor: pointer; font: inherit;
+  font-size: 13px; text-decoration: underline; padding: 0;
+}
+
+.contadores {
+  display: flex; justify-content: space-between; font-size: 13px; color: var(--tinta-suave);
+  margin-bottom: 18px;
+}
+.contadores .alerta { color: var(--destaque); font-weight: 600; }
+.dica { margin: -12px 0 16px; font-size: 13px; color: var(--destaque); text-align: right; }
+
+.primario {
+  width: 100%; border: 0; border-radius: 10px; padding: 14px; cursor: pointer;
+  background: var(--azul); color: #fff; font: 600 16px "Inter", sans-serif;
+}
+.primario:disabled { opacity: .6; cursor: progress; }
+
+.erro {
+  margin: 14px 0 0; padding: 12px 14px; border-radius: 10px;
+  background: var(--destaque-suave); color: var(--destaque); font-size: 14px;
+}

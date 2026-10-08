@@ -1,0 +1,38 @@
+<h2>Sua redação</h2>
+
+<form [formGroup]="form" (ngSubmit)="submeter()">
+  <label for="tema">Tema da proposta</label>
+  <input id="tema" formControlName="tema" maxlength="300"
+         placeholder="Ex.: Desafios para o combate à desinformação no Brasil">
+  @if (form.controls.tema.touched && form.controls.tema.hasError('required')) {
+    <p class="campo-erro">Informe o tema da redação.</p>
+  }
+
+  <div class="rotulo-linha">
+    <label for="texto">Texto</label>
+    <button type="button" class="link" (click)="usarExemplo()">usar redação de exemplo</button>
+  </div>
+  <textarea id="texto" formControlName="texto" rows="18"
+            placeholder="Cole ou digite aqui sua redação, com os parágrafos separados por linha em branco."></textarea>
+  @if (form.controls.texto.touched && form.controls.texto.hasError('required')) {
+    <p class="campo-erro">Informe o texto da redação.</p>
+  }
+
+  <div class="contadores">
+    <span>{{ palavras() }} {{ palavras() === 1 ? 'palavra' : 'palavras' }}</span>
+    <span [class.alerta]="alertaLinhas()" [title]="alertaLinhas()">
+      ≈ {{ linhas() }} {{ linhas() === 1 ? 'linha' : 'linhas' }} na folha
+    </span>
+  </div>
+  @if (alertaLinhas()) {
+    <p class="dica">{{ alertaLinhas() }}</p>
+  }
+
+  <button type="submit" class="primario" [disabled]="carregando()">
+    {{ carregando() ? 'Avaliando…' : 'Avaliar redação' }}
+  </button>
+
+  @if (erro()) {
+    <p class="erro" role="alert">{{ erro() }}</p>
+  }
+</form>

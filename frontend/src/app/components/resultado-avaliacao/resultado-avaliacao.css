@@ -1,0 +1,34 @@
+:host { display: block; }
+
+.nota-final {
+  display: flex; justify-content: space-between; align-items: flex-end; gap: 20px;
+  padding-bottom: 18px; border-bottom: 1px solid var(--linha);
+}
+.rotulo { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--tinta-suave); }
+.nota-numero { font-family: "Fraunces", Georgia, serif; font-size: 64px; font-weight: 700; line-height: 1; }
+.nota-numero small { font-size: 22px; color: var(--tinta-suave); font-weight: 500; }
+
+.barras { display: flex; gap: 8px; align-items: flex-end; height: 72px; }
+.barra {
+  width: 26px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--tinta-suave);
+}
+.barra-fundo {
+  width: 100%; height: 56px; background: var(--linha); border-radius: 6px;
+  display: flex; align-items: flex-end; overflow: hidden;
+}
+.barra-valor { width: 100%; border-radius: 6px; background: var(--cor); transition: height .6s ease; }
+
+.anulada {
+  margin: 16px 0 0; padding: 12px 14px; border-radius: 10px;
+  background: var(--destaque-suave); color: var(--destaque); font-weight: 500;
+}
+.comentario { margin: 16px 0 0; }
+h3 { font-size: 19px; margin: 26px 0 10px; }
+.passos { margin: 0; padding-left: 22px; }
+.passos li { margin-bottom: 6px; }
+.aviso { margin-top: 22px; font-size: 13px; color: var(--tinta-suave); }
+
+@media (max-width: 900px) {
+  .nota-final { flex-direction: column; align-items: flex-start; }
+}

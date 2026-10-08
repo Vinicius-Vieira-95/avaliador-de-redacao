@@ -1,0 +1,45 @@
+<header class="topo">
+  <div class="marca">
+    <span class="selo">ENEM</span>
+    <div>
+      <h1>Corretor de Redação</h1>
+      <p>Estimativa de nota pelas cinco competências, com os pontos exatos para melhorar.</p>
+    </div>
+  </div>
+
+  @switch (estadoStatus()) {
+    @case ('verificando') { <span class="status">verificando…</span> }
+    @case ('pronto') { <span class="status ok">IA pronta · {{ status()?.modelo }}</span> }
+    @case ('sem-chave') { <span class="status falha">Chave da OpenAI não configurada</span> }
+    @case ('offline') { <span class="status falha">Servidor indisponível</span> }
+  }
+</header>
+
+<main class="layout">
+  <app-formulario-redacao
+    class="painel entrada"
+    [carregando]="carregando()"
+    [erro]="erro()"
+    (enviar)="avaliar($event)" />
+
+  <section id="resultado" class="painel" aria-live="polite">
+    @if (carregando()) {
+      <div class="carregando">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Lendo sua redação com os critérios do ENEM…<br><small>pode levar até um minuto</small></p>
+      </div>
+    } @else if (avaliacao(); as resultado) {
+      <app-resultado-avaliacao [avaliacao]="resultado" [texto]="textoAvaliado()" />
+    } @else {
+      <div class="vazio">
+        <p class="vazio-titulo">O resultado aparece aqui</p>
+        <p>
+          Você recebe uma nota estimada de 0 a 1000, a análise de cada competência e os trechos
+          do seu texto que merecem reescrita.
+        </p>
+      </div>
+    }
+  </section>
+</main>
+
+<footer class="rodape">Projeto de Extensão IV · UECE · 2026.2</footer>
