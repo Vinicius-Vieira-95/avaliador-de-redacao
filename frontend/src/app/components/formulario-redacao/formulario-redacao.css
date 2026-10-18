@@ -17,6 +17,8 @@ input.ng-invalid.ng-touched, textarea.ng-invalid.ng-touched { border-color: var(
 .campo-erro { margin: -10px 0 14px; font-size: 13px; color: var(--destaque); }
 
 .rotulo-linha { display: flex; justify-content: space-between; align-items: baseline; }
+.acoes-texto { display: flex; gap: 12px; }
+.salvo { font-size: 12px; opacity: .8; }
 .link {
   background: none; border: 0; color: var(--azul); cursor: pointer; font: inherit;
   font-size: 13px; text-decoration: underline; padding: 0;

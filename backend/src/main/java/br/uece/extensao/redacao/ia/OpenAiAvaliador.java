@@ -20,6 +20,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import br.uece.extensao.redacao.config.OpenAiProperties;
 import br.uece.extensao.redacao.exception.IAIndisponivelException;
@@ -34,6 +35,8 @@ import tools.jackson.databind.json.JsonMapper;
 public class OpenAiAvaliador implements AvaliadorIA {
 
     private static final Logger log = LoggerFactory.getLogger(OpenAiAvaliador.class);
+    private static final int MAX_TENTATIVAS = 2;
+    private static final Duration ESPERA_ENTRE_TENTATIVAS = Duration.ofSeconds(2);
 
     private final OpenAiProperties properties;
     private final JsonMapper jsonMapper;
@@ -77,23 +80,42 @@ public class OpenAiAvaliador implements AvaliadorIA {
                                 "strict", true,
                                 "schema", schemaAvaliacao)));
 
-        RespostaChat resposta;
-        try {
-            resposta = restClient.post()
-                    .uri("/chat/completions")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(corpo)
-                    .retrieve()
-                    .body(RespostaChat.class);
-        } catch (RestClientResponseException e) {
-            log.error("OpenAI respondeu {}: {}", e.getStatusCode(), e.getResponseBodyAsString());
-            throw new IAIndisponivelException(mensagemDeErro(e.getStatusCode().value()), e);
-        } catch (RestClientException e) {
-            log.error("Falha ao chamar a OpenAI", e);
-            throw new IAIndisponivelException("Não foi possível contatar o serviço de IA. Tente novamente.", e);
-        }
+        return extrairAvaliacao(chamar(corpo));
+    }
 
-        return extrairAvaliacao(resposta);
+    /** Envia a requisição, repetindo uma vez se a OpenAI estiver momentaneamente instável (HTTP 5xx). */
+    private RespostaChat chamar(Map<String, Object> corpo) {
+        for (int tentativa = 1; ; tentativa++) {
+            try {
+                return restClient.post()
+                        .uri("/chat/completions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(corpo)
+                        .retrieve()
+                        .body(RespostaChat.class);
+            } catch (RestClientResponseException e) {
+                log.error("OpenAI respondeu {} (tentativa {}): {}", e.getStatusCode(), tentativa,
+                        e.getResponseBodyAsString());
+                if (e.getStatusCode().is5xxServerError() && tentativa < MAX_TENTATIVAS) {
+                    aguardar(ESPERA_ENTRE_TENTATIVAS);
+                    continue;
+                }
+                throw new IAIndisponivelException(mensagemDeErro(e.getStatusCode().value(), e.getResponseBodyAsString()), e);
+            } catch (RestClientException e) {
+                // Inclui timeouts: repetir faria o estudante esperar o dobro, então falha logo.
+                log.error("Falha ao chamar a OpenAI", e);
+                throw new IAIndisponivelException("Não foi possível contatar o serviço de IA. Tente novamente.", e);
+            }
+        }
+    }
+
+    private static void aguardar(Duration espera) {
+        try {
+            Thread.sleep(espera);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IAIndisponivelException("A avaliação foi interrompida. Tente novamente.", e);
+        }
     }
 
     private AvaliacaoIA extrairAvaliacao(RespostaChat resposta) {
@@ -101,9 +123,14 @@ public class OpenAiAvaliador implements AvaliadorIA {
                 || resposta.choices().getFirst().message() == null) {
             throw new IAIndisponivelException("O serviço de IA devolveu uma resposta vazia.");
         }
-        Mensagem mensagem = resposta.choices().getFirst().message();
+        Escolha escolha = resposta.choices().getFirst();
+        Mensagem mensagem = escolha.message();
         if (mensagem.refusal() != null && !mensagem.refusal().isBlank()) {
             throw new IAIndisponivelException("O modelo se recusou a avaliar o texto: " + mensagem.refusal());
+        }
+        if ("length".equals(escolha.finishReason())) {
+            throw new IAIndisponivelException(
+                    "A resposta da IA foi interrompida antes de terminar. Tente novamente em instantes.");
         }
         if (mensagem.content() == null || mensagem.content().isBlank()) {
             throw new IAIndisponivelException("O serviço de IA devolveu uma resposta vazia.");
@@ -128,11 +155,14 @@ public class OpenAiAvaliador implements AvaliadorIA {
                 """.formatted(tema.strip(), texto.strip());
     }
 
-    private static String mensagemDeErro(int status) {
+    static String mensagemDeErro(int status, String corpoResposta) {
+        boolean semCreditos = corpoResposta != null && corpoResposta.contains("insufficient_quota");
         return switch (status) {
             case 401 -> "A chave da OpenAI é inválida. Verifique a variável OPENAI_API_KEY.";
             case 404 -> "O modelo configurado não foi encontrado. Verifique a variável OPENAI_MODEL.";
-            case 429 -> "Limite de uso da OpenAI atingido ou créditos insuficientes. Tente mais tarde.";
+            case 429 -> semCreditos
+                    ? "A conta da OpenAI está sem créditos. Adicione créditos em platform.openai.com e tente de novo."
+                    : "Muitas avaliações ao mesmo tempo: o limite de uso da OpenAI foi atingido. Aguarde um minuto e tente de novo.";
             default -> "O serviço de IA retornou um erro (HTTP " + status + "). Tente novamente.";
         };
     }
@@ -156,7 +186,7 @@ public class OpenAiAvaliador implements AvaliadorIA {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record Escolha(Mensagem message) {
+    record Escolha(Mensagem message, @JsonProperty("finish_reason") String finishReason) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

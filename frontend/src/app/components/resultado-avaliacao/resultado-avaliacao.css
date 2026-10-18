@@ -27,8 +27,21 @@
 h3 { font-size: 19px; margin: 26px 0 10px; }
 .passos { margin: 0; padding-left: 22px; }
 .passos li { margin-bottom: 6px; }
-.aviso { margin-top: 22px; font-size: 13px; color: var(--tinta-suave); }
+.comparacao { margin: 8px 0 0; font-size: 13px; color: var(--tinta-suave); }
+
+.rodape-resultado { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 22px; }
+.aviso { margin: 0; font-size: 13px; color: var(--tinta-suave); }
+.imprimir {
+  flex-shrink: 0; border: 1px solid var(--linha); border-radius: 10px; background: #fff; color: var(--azul);
+  padding: 8px 14px; font: 500 14px "Inter", sans-serif; cursor: pointer;
+}
+.imprimir:hover { border-color: var(--azul); }
 
 @media (max-width: 900px) {
   .nota-final { flex-direction: column; align-items: flex-start; }
+  .rodape-resultado { flex-direction: column; align-items: flex-start; }
+}
+
+@media print {
+  .imprimir { display: none; }
 }

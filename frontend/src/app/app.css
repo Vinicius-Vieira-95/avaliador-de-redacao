@@ -46,3 +46,11 @@
   .entrada { position: static; }
   .topo { flex-direction: column; align-items: flex-start; }
 }
+
+/* Impressão / PDF: só o resultado, para o estudante levar ao professor. */
+@media print {
+  .entrada, .status, .rodape { display: none; }
+  .topo { padding: 0 0 8px; }
+  .layout { display: block; padding: 0; }
+  .painel { border: 0; padding: 0; }
+}

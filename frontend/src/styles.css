@@ -29,3 +29,8 @@ body {
 }
 
 h1, h2, h3 { font-family: "Fraunces", Georgia, serif; }
+
+@media print {
+  body { background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  app-cartao-competencia { break-inside: avoid; }
+}

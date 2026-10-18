@@ -29,7 +29,7 @@
         <p>Lendo sua redação com os critérios do ENEM…<br><small>pode levar até um minuto</small></p>
       </div>
     } @else if (avaliacao(); as resultado) {
-      <app-resultado-avaliacao [avaliacao]="resultado" [texto]="textoAvaliado()" />
+      <app-resultado-avaliacao [avaliacao]="resultado" [anterior]="anterior()" [texto]="textoAvaliado()" />
     } @else {
       <div class="vazio">
         <p class="vazio-titulo">O resultado aparece aqui</p>

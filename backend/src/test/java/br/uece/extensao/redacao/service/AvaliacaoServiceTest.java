@@ -89,6 +89,20 @@ class AvaliacaoServiceTest {
     }
 
     @Test
+    void substituiTrechoCitadoComPequenasDiferencasPeloOriginal() {
+        AvaliacaoIA ia = new AvaliacaoIA(false, "", List.of(
+                competencia(1, 160, new PontoMelhoriaIA("“Problema  grave no brasil”", "p", "s")),
+                competencia(2, 160), competencia(3, 160), competencia(4, 160), competencia(5, 160)),
+                "", List.of());
+
+        var ponto = servico(ia).avaliar(new AvaliacaoRequest("Tema", TEXTO)).competencias().get(0)
+                .pontosDeMelhoria().get(0);
+
+        assertTrue(ponto.trechoEncontrado());
+        assertEquals("problema grave no Brasil", ponto.trecho());
+    }
+
+    @Test
     void falhaQuandoFaltaCompetencia() {
         AvaliacaoIA ia = new AvaliacaoIA(false, "", List.of(
                 competencia(1, 160), competencia(2, 160), competencia(3, 160), competencia(4, 160)),

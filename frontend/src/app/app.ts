@@ -1,9 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 
 import { FormularioRedacao } from './components/formulario-redacao/formulario-redacao';
 import { ResultadoAvaliacao } from './components/resultado-avaliacao/resultado-avaliacao';
-import { AvaliacaoRequest, AvaliacaoResponse, StatusIA } from './models/avaliacao.model';
+import { AvaliacaoRequest, StatusIA } from './models/avaliacao.model';
 import { AvaliacaoService } from './services/avaliacao.service';
+import { AvaliacaoSalva, lerAvaliacaoSalva, mesmoTema, salvarAvaliacao } from './utils/armazenamento';
 
 type EstadoStatus = 'verificando' | 'pronto' | 'sem-chave' | 'offline';
 
@@ -20,8 +21,12 @@ export class App implements OnInit {
   protected readonly status = signal<StatusIA | null>(null);
   protected readonly carregando = signal(false);
   protected readonly erro = signal('');
-  protected readonly avaliacao = signal<AvaliacaoResponse | null>(null);
-  protected readonly textoAvaliado = signal('');
+
+  /** Avaliação exibida, restaurada do navegador se a página for recarregada. */
+  private readonly salva = signal<AvaliacaoSalva | null>(lerAvaliacaoSalva());
+  protected readonly avaliacao = computed(() => this.salva()?.avaliacao ?? null);
+  protected readonly anterior = computed(() => this.salva()?.anterior ?? null);
+  protected readonly textoAvaliado = computed(() => this.salva()?.texto ?? '');
 
   ngOnInit(): void {
     this.avaliacaoService.status().subscribe({
@@ -39,8 +44,12 @@ export class App implements OnInit {
 
     this.avaliacaoService.avaliar(request).subscribe({
       next: resposta => {
-        this.textoAvaliado.set(request.texto);
-        this.avaliacao.set(resposta);
+        // Reescrita do mesmo tema: a avaliação atual passa a ser a referência para comparar.
+        const atual = this.salva();
+        const anterior = atual && mesmoTema(atual.tema, request.tema) ? atual.avaliacao : null;
+        const nova: AvaliacaoSalva = { tema: request.tema, texto: request.texto, avaliacao: resposta, anterior };
+        this.salva.set(nova);
+        salvarAvaliacao(nova);
         this.carregando.set(false);
         if (window.innerWidth <= 900) {
           setTimeout(() => document.getElementById('resultado')?.scrollIntoView({ behavior: 'smooth' }));

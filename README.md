@@ -93,16 +93,21 @@ Angular (localhost:4200)
 - **`resources/ia/prompt-sistema.txt`** — instruções do agente: rubrica das cinco competências, níveis 0–200, os cinco elementos da proposta de intervenção (agente, ação, modo/meio, efeito, detalhamento), casos de nota zero e formato do retorno pedagógico. É o principal ponto para calibrar a correção após a validação com o público-alvo.
 - **`resources/ia/schema-avaliacao.json`** — schema da resposta; com `strict: true`, a OpenAI só pode devolver notas 0, 40, 80, 120, 160 ou 200.
 - **`AvaliacaoService`** — não confia cegamente no modelo: exige as cinco competências, ajusta notas fora da escala, zera tudo se a redação for anulada, soma a nota final e confere se cada trecho citado existe no texto.
+- **`LocalizadorDeTrechos`** — quando o modelo cita um trecho com pequenas diferenças (aspas tipográficas, espaços, maiúsculas, acento perdido, aspas ou ponto final em volta), encontra o fragmento correspondente e devolve-o como está no texto original, para que o destaque funcione.
+- **`OpenAiAvaliador`** — repete a chamada uma vez quando a OpenAI responde 5xx, diferencia "sem créditos" de "limite de requisições" no erro 429 e avisa quando a resposta vem truncada.
+- **`TratadorDeErros`** — toda falha, inclusive inesperada, chega ao front no formato `{ "mensagem": ... }`.
 - **`AvaliadorIA`** — interface; trocar de provedor exige só uma nova implementação.
 
 ### Frontend (`frontend/src/app`)
 
-- `components/formulario-redacao` — formulário reativo, contadores de palavras e de linhas estimadas (alerta abaixo de 8 ou acima de 30 linhas).
-- `components/resultado-avaliacao` — nota total, barras por competência, comentário geral e próximos passos.
+- `components/formulario-redacao` — formulário reativo, contadores de palavras e de linhas estimadas (alerta abaixo de 8 ou acima de 30 linhas), validação do tamanho mínimo/máximo antes de enviar e rascunho salvo automaticamente no navegador.
+- `components/resultado-avaliacao` — nota total, barras por competência, comentário geral, próximos passos e botão para imprimir/salvar em PDF (a impressão mostra só o resultado).
 - `components/cartao-competencia` — justificativa, pontos fortes e pontos de melhoria de uma competência.
 - `components/texto-marcado` — a redação com os trechos destacados e numerados.
+- `components/variacao-nota` — selo "+40 / −40 / =" que compara a reescrita com a avaliação anterior do mesmo tema.
 - `services/avaliacao.service.ts` — chamadas HTTP e tradução das mensagens de erro.
-- `utils/redacao.ts` — contagens, numeração dos pontos e segmentação do texto (testadas em `redacao.spec.ts`).
+- `utils/redacao.ts` — contagens, limites, numeração dos pontos, segmentação do texto e variação de notas (testadas em `redacao.spec.ts`).
+- `utils/armazenamento.ts` — guarda no `localStorage` o rascunho e a última avaliação; ao recarregar a página o resultado continua na tela. Se o navegador bloquear o armazenamento, tudo funciona, só que sem lembrar.
 
 ## API
 
@@ -144,5 +149,6 @@ Erros: `400` para entrada inválida (tema vazio, texto curto ou longo demais) e 
 
 - A nota é uma estimativa; o sistema avisa que não substitui o professor.
 - A contagem de linhas é aproximada (cerca de 65 caracteres por linha manuscrita).
-- O modelo às vezes cita trechos com pequenas diferenças do original; nesses casos o ponto de melhoria aparece, mas o trecho não é destacado no texto.
-- Não há histórico de redações nem login nesta versão.
+- Pequenas diferenças na citação dos trechos são toleradas, mas se o modelo parafrasear o trecho, o ponto de melhoria aparece sem destaque no texto.
+- Os limites de tamanho (300 a 6000 caracteres) estão duplicados no front (`utils/redacao.ts`) e no backend (`application.properties`); ao alterar um, altere o outro.
+- Não há login nem histórico completo: o navegador guarda só a última avaliação (e a anterior, para comparação).

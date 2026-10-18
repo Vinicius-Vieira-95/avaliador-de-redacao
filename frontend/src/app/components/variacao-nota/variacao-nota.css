@@ -1,0 +1,11 @@
+:host {
+  display: inline-block; padding: 1px 8px; border-radius: 999px; vertical-align: middle;
+  font: 600 13px/20px "Inter", sans-serif; white-space: nowrap;
+  background: var(--linha); color: var(--tinta-suave);
+}
+:host(.subiu) { background: #dcfce7; color: var(--ok); }
+:host(.caiu) { background: var(--destaque-suave); color: var(--destaque); }
+
+.leitor-de-tela {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}

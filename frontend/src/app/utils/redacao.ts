@@ -11,6 +11,27 @@ export const CARACTERES_POR_LINHA = 65;
 export const MAXIMO_LINHAS = 30;
 export const MINIMO_LINHAS = 7;
 
+/** Mesmos limites de `avaliacao.texto.*` no backend; conferidos aqui para avisar antes de enviar. */
+export const MINIMO_CARACTERES = 300;
+export const MAXIMO_CARACTERES = 6000;
+
+/** Diferença de nota em relação à avaliação anterior: total e por número da competência. */
+export interface Variacao {
+  total: number;
+  porCompetencia: Record<number, number>;
+}
+
+export function calcularVariacao(atual: AvaliacaoResponse, anterior: AvaliacaoResponse | null): Variacao | null {
+  if (!anterior) return null;
+  const notasAnteriores = new Map(anterior.competencias.map(c => [c.numero, c.nota]));
+  const porCompetencia: Record<number, number> = {};
+  for (const c of atual.competencias) {
+    const nota = notasAnteriores.get(c.numero);
+    if (nota !== undefined) porCompetencia[c.numero] = c.nota - nota;
+  }
+  return { total: atual.notaTotal - anterior.notaTotal, porCompetencia };
+}
+
 export function contarPalavras(texto: string): number {
   const limpo = texto.trim();
   return limpo ? limpo.split(/\s+/).length : 0;

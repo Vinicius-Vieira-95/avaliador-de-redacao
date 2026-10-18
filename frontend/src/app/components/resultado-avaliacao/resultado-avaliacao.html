@@ -1,9 +1,15 @@
 @let resultado = avaliacao();
+@let diferenca = variacao();
 
 <div class="nota-final">
   <div>
     <span class="rotulo">Nota estimada</span>
     <div class="nota-numero">{{ resultado.notaTotal }}<small>/{{ notaMaxima }}</small></div>
+    @if (diferenca) {
+      <p class="comparacao">
+        <app-variacao-nota [valor]="diferenca.total" /> em relação à avaliação anterior ({{ anterior()?.notaTotal }})
+      </p>
+    }
   </div>
   <div class="barras" aria-hidden="true">
     @for (c of resultado.competencias; track c.numero) {
@@ -34,10 +40,14 @@
 
 <h3>Competências</h3>
 @for (competencia of competencias(); track competencia.numero) {
-  <app-cartao-competencia [competencia]="competencia" (selecionarTrecho)="irParaTrecho($event)" />
+  <app-cartao-competencia [competencia]="competencia" [variacao]="diferenca?.porCompetencia?.[competencia.numero]"
+                          (selecionarTrecho)="irParaTrecho($event)" />
 }
 
 <h3>Seu texto com os trechos apontados</h3>
 <app-texto-marcado [texto]="texto()" [marcacoes]="marcacoes()" />
 
-<p class="aviso">{{ resultado.aviso }} Modelo: {{ resultado.modelo }}.</p>
+<div class="rodape-resultado">
+  <p class="aviso">{{ resultado.aviso }} Modelo: {{ resultado.modelo }}.</p>
+  <button type="button" class="imprimir" (click)="imprimir()">Imprimir ou salvar em PDF</button>
+</div>

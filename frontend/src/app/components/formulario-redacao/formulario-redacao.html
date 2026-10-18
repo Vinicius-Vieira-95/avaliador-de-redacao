@@ -10,16 +10,36 @@
 
   <div class="rotulo-linha">
     <label for="texto">Texto</label>
-    <button type="button" class="link" (click)="usarExemplo()">usar redação de exemplo</button>
+    <span class="acoes-texto">
+      <button type="button" class="link" (click)="usarExemplo()">usar redação de exemplo</button>
+      @if (form.controls.tema.value || form.controls.texto.value) {
+        <button type="button" class="link" (click)="limpar()">limpar</button>
+      }
+    </span>
   </div>
   <textarea id="texto" formControlName="texto" rows="18"
             placeholder="Cole ou digite aqui sua redação, com os parágrafos separados por linha em branco."></textarea>
-  @if (form.controls.texto.touched && form.controls.texto.hasError('required')) {
-    <p class="campo-erro">Informe o texto da redação.</p>
+  @if (form.controls.texto.touched) {
+    @if (form.controls.texto.hasError('required')) {
+      <p class="campo-erro">Informe o texto da redação.</p>
+    } @else if (form.controls.texto.hasError('curto')) {
+      <p class="campo-erro">
+        O texto está muito curto para ser avaliado: {{ caracteres() }} de no mínimo {{ minimoCaracteres }} caracteres.
+      </p>
+    } @else if (form.controls.texto.hasError('longo')) {
+      <p class="campo-erro">
+        O texto passa do limite: {{ caracteres() }} de no máximo {{ maximoCaracteres }} caracteres.
+      </p>
+    }
   }
 
   <div class="contadores">
-    <span>{{ palavras() }} {{ palavras() === 1 ? 'palavra' : 'palavras' }}</span>
+    <span>
+      {{ palavras() }} {{ palavras() === 1 ? 'palavra' : 'palavras' }}
+      @if (caracteres()) {
+        <span class="salvo">· rascunho salvo neste navegador</span>
+      }
+    </span>
     <span [class.alerta]="alertaLinhas()" [title]="alertaLinhas()">
       ≈ {{ linhas() }} {{ linhas() === 1 ? 'linha' : 'linhas' }} na folha
     </span>

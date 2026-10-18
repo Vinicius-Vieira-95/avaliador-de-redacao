@@ -1,5 +1,12 @@
 import { AvaliacaoResponse } from '../models/avaliacao.model';
-import { contarPalavras, estimarLinhas, extrairMarcacoes, numerarPontos, segmentarTexto } from './redacao';
+import {
+  calcularVariacao,
+  contarPalavras,
+  estimarLinhas,
+  extrairMarcacoes,
+  numerarPontos,
+  segmentarTexto,
+} from './redacao';
 
 function avaliacaoCom(pontos: { trecho: string; trechoEncontrado: boolean }[][]): AvaliacaoResponse {
   return {
@@ -36,6 +43,17 @@ describe('utilitários da redação', () => {
       { ref: 1, competencia: 1, trecho: 'x' },
       { ref: 2, competencia: 2, trecho: 'z' },
     ]);
+  });
+
+  it('calcula a variação de nota em relação à avaliação anterior', () => {
+    const anterior = avaliacaoCom([[], [], []]);
+    const atual = avaliacaoCom([[], [], []]);
+    anterior.notaTotal = 360;
+    atual.notaTotal = 400;
+    atual.competencias[1].nota = 160;
+
+    expect(calcularVariacao(atual, null)).toBeNull();
+    expect(calcularVariacao(atual, anterior)).toEqual({ total: 40, porCompetencia: { 1: 0, 2: 40, 3: 0 } });
   });
 
   it('segmenta o texto sem sobrepor marcações repetidas', () => {

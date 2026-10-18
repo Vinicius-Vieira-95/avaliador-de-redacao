@@ -6,7 +6,12 @@
       <small>Competência {{ c.numero }}</small>
       {{ c.nome }}
     </div>
-    <div class="nota">{{ c.nota }}<small>/{{ notaMaxima }}</small></div>
+    <div class="nota">
+      @if (variacao() !== undefined) {
+        <app-variacao-nota [valor]="variacao()!" />
+      }
+      {{ c.nota }}<small>/{{ notaMaxima }}</small>
+    </div>
   </div>
 
   <p>{{ c.justificativa }}</p>

@@ -88,6 +88,26 @@ class AvaliacaoControllerTest {
     }
 
     @Test
+    void devolveMensagemAmigavelEmErroInesperado() throws Exception {
+        avaliadorIA = (tema, texto) -> {
+            throw new IllegalStateException("bug interno");
+        };
+
+        mockMvc.perform(post("/api/avaliacoes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(new AvaliacaoRequest("Tema", TEXTO))))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.mensagem").value("Ocorreu um erro inesperado no servidor. Tente novamente."));
+    }
+
+    @Test
+    void mantemOStatusDeErrosDoSpring() throws Exception {
+        mockMvc.perform(get("/api/avaliacoes"))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.mensagem").exists());
+    }
+
+    @Test
     void informaStatusDaIA() throws Exception {
         mockMvc.perform(get("/api/status"))
                 .andExpect(status().isOk())

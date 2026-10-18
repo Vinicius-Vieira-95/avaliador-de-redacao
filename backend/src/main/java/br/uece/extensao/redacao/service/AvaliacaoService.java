@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -117,9 +118,10 @@ public class AvaliacaoService {
         return ia.pontosDeMelhoria().stream()
                 .filter(Objects::nonNull)
                 .map(p -> {
-                    String trecho = textoOuVazio(p.trecho()).strip();
-                    boolean encontrado = !trecho.isEmpty() && texto.contains(trecho);
-                    return new PontoMelhoriaResponse(trecho, encontrado,
+                    String citado = textoOuVazio(p.trecho()).strip();
+                    // Quando encontrado, devolve o fragmento como está no texto, para o front destacá-lo.
+                    Optional<String> original = LocalizadorDeTrechos.localizar(texto, citado);
+                    return new PontoMelhoriaResponse(original.orElse(citado), original.isPresent(),
                             textoOuVazio(p.problema()), textoOuVazio(p.sugestao()));
                 })
                 .toList();
