@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import tools.jackson.databind.json.JsonMapper;
 
+import br.uece.extensao.redacao.config.AuthProperties;
 import br.uece.extensao.redacao.config.OpenAiProperties;
 import br.uece.extensao.redacao.dto.AvaliacaoRequest;
 import br.uece.extensao.redacao.exception.IAIndisponivelException;
@@ -49,7 +50,8 @@ class AvaliacaoControllerTest {
         AvaliacaoService service = new AvaliacaoService((tema, texto) -> avaliadorIA.avaliar(tema, texto),
                 "modelo-teste", 300, 6000);
         OpenAiProperties props = new OpenAiProperties("sk-teste", "modelo-teste", "http://localhost", Duration.ofSeconds(5));
-        mockMvc = MockMvcBuilders.standaloneSetup(new AvaliacaoController(service, props))
+        AuthProperties auth = new AuthProperties(true, "http://localhost:8081", "redacao-enem", "corretor-frontend");
+        mockMvc = MockMvcBuilders.standaloneSetup(new AvaliacaoController(service, props, auth))
                 .setControllerAdvice(new TratadorDeErros())
                 .build();
     }
@@ -112,6 +114,8 @@ class AvaliacaoControllerTest {
         mockMvc.perform(get("/api/status"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.iaConfigurada").value(true))
-                .andExpect(jsonPath("$.modelo").value("modelo-teste"));
+                .andExpect(jsonPath("$.modelo").value("modelo-teste"))
+                .andExpect(jsonPath("$.autenticacao.habilitada").value(true))
+                .andExpect(jsonPath("$.autenticacao.realm").value("redacao-enem"));
     }
 }

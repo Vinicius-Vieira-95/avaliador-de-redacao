@@ -1,0 +1,8 @@
+# Copie este arquivo para "application-local.properties" (na mesma pasta) e preencha a chave.
+# O application-local.properties está no .gitignore: ele nunca vai para o Git nem para o .jar.
+# Se a variável de ambiente OPENAI_API_KEY estiver definida, ela tem prioridade sobre este arquivo.
+OPENAI_API_KEY=sk-coloque-sua-chave-aqui
+
+# Opcionais
+# OPENAI_MODEL=gpt-5-mini
+# CORS_ORIGENS=http://localhost:4200

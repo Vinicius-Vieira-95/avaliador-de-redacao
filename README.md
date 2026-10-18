@@ -15,10 +15,33 @@ O estudante informa o tema e o texto da redação; o agente devolve uma **estima
 - **JDK 25** — se não estiver instalado, o Gradle baixa automaticamente (plugin foojay). Para rodar o próprio Gradle basta qualquer JDK 17+.
 - **Node.js 22.22.3+ ou 24.15+** (exigência do Angular CLI 22)
 - Uma chave da API da OpenAI (https://platform.openai.com/api-keys) com créditos
+- **Keycloak 26** para o login — via Docker ou pelo script que baixa e roda sem Docker (veja abaixo)
 
 ## Como executar (desenvolvimento)
 
-Abra dois terminais.
+Abra três terminais.
+
+**0. Keycloak** (porta 8081)
+
+Sem Docker (Windows, precisa de Java 21+; na primeira vez baixa ~200 MB para `keycloak/servidor/`):
+```powershell
+.\keycloak\iniciar-keycloak.ps1
+```
+
+Com Docker:
+```bash
+docker compose up keycloak
+```
+
+O realm `redacao-enem` é importado automaticamente de `keycloak/realm-redacao-enem.json`, com:
+
+| O quê                 | Valor                                                       |
+|-----------------------|-------------------------------------------------------------|
+| Usuário de teste      | `estudante` / `estudante123`                                |
+| Novo estudante        | link **"Cadastre-se"** na tela de login                     |
+| Console administrativo | http://localhost:8081 — `admin` / `admin` (só para desenvolvimento) |
+
+Para demonstrar sem Keycloak, inicie o backend com `AUTH_HABILITADA=false`: o front percebe pelo `/api/status` e não pede login.
 
 **1. Backend** (porta 8080)
 
@@ -67,6 +90,10 @@ Abra http://localhost:4200. O `ng serve` repassa as chamadas `/api` para o backe
 | `OPENAI_MODEL`    | `gpt-5-mini`                 | Modelo usado na correção                    |
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1`  | URL base da API                             |
 | `CORS_ORIGENS`    | `http://localhost:4200`      | Origens do front autorizadas (vírgula)      |
+| `AUTH_HABILITADA` | `true`                       | `false` libera a API sem login              |
+| `KEYCLOAK_URL`    | `http://localhost:8081`      | Endereço do Keycloak (o mesmo que o navegador usa) |
+| `KEYCLOAK_REALM`  | `redacao-enem`               | Realm                                       |
+| `KEYCLOAK_CLIENT_ID` | `corretor-frontend`       | Cliente público usado pelo front            |
 
 Limites de tamanho do texto e timeout ficam em `backend/src/main/resources/application.properties`.
 
@@ -89,11 +116,14 @@ O front gerado é estático e pode ser publicado em qualquer hospedagem; basta i
 ## Arquitetura
 
 ```
-Angular (localhost:4200)
-  FormularioRedacao ─(enviar)─► App ─► AvaliacaoService (HttpClient)
-  ResultadoAvaliacao ◄──────────┘            │  POST /api/avaliacoes
+Keycloak (localhost:8081) ◄── login OIDC + PKCE ── keycloak-js
+     │ chaves públicas (JWKS)                          │
+     ▼                                                 ▼
+Angular (localhost:4200)                     token no cabeçalho Authorization
+  FormularioRedacao ─(enviar)─► App ─► AvaliacaoService (HttpClient + interceptor)
+  ResultadoAvaliacao ◄──────────┘            │  POST /api/avaliacoes  (Bearer)
     ├─ CartaoCompetencia (×5)                 ▼
-    └─ TextoMarcado                 Spring Boot (localhost:8080)
+    └─ TextoMarcado                 Spring Boot (localhost:8080) — valida o JWT
                                       AvaliacaoController
                                         └─ AvaliacaoService ─► AvaliadorIA (interface)
                                              valida tamanho        └─ OpenAiAvaliador
@@ -109,6 +139,7 @@ Angular (localhost:4200)
 - **`LocalizadorDeTrechos`** — quando o modelo cita um trecho com pequenas diferenças (aspas tipográficas, espaços, maiúsculas, acento perdido, aspas ou ponto final em volta), encontra o fragmento correspondente e devolve-o como está no texto original, para que o destaque funcione.
 - **`OpenAiAvaliador`** — repete a chamada uma vez quando a OpenAI responde 5xx, diferencia "sem créditos" de "limite de requisições" no erro 429 e avisa quando a resposta vem truncada.
 - **`TratadorDeErros`** — toda falha, inclusive inesperada, chega ao front no formato `{ "mensagem": ... }`.
+- **`SegurancaConfig`** — a API é um *resource server* OAuth2 sem sessão: valida assinatura, emissor e validade do JWT emitido pelo Keycloak. `POST /api/avaliacoes` exige login (é o que consome créditos da OpenAI); `GET /api/status` é público. CORS é aplicado antes da autenticação (`CorsConfig`).
 - **`AvaliadorIA`** — interface; trocar de provedor exige só uma nova implementação.
 
 ### Frontend (`frontend/src/app`)
@@ -118,13 +149,15 @@ Angular (localhost:4200)
 - `components/cartao-competencia` — justificativa, pontos fortes e pontos de melhoria de uma competência.
 - `components/texto-marcado` — a redação com os trechos destacados e numerados.
 - `components/variacao-nota` — selo "+40 / −40 / =" que compara a reescrita com a avaliação anterior do mesmo tema.
+- `auth/autenticacao.service.ts` — inicia o `keycloak-js` antes de a página aparecer (login obrigatório, PKCE), renova o token e faz logout. A configuração vem do `/api/status`, então não fica duplicada no front.
+- `auth/autenticacao.interceptor.ts` — anexa `Authorization: Bearer ...` às chamadas `/api` e leva ao login se o backend responder 401.
 - `services/avaliacao.service.ts` — chamadas HTTP e tradução das mensagens de erro.
 - `utils/redacao.ts` — contagens, limites, numeração dos pontos, segmentação do texto e variação de notas (testadas em `redacao.spec.ts`).
-- `utils/armazenamento.ts` — guarda no `localStorage` o rascunho e a última avaliação; ao recarregar a página o resultado continua na tela. Se o navegador bloquear o armazenamento, tudo funciona, só que sem lembrar.
+- `utils/armazenamento.ts` — guarda no `localStorage` o rascunho e a última avaliação, separados por usuário (para quem divide o computador do laboratório); ao recarregar a página o resultado continua na tela. Se o navegador bloquear o armazenamento, tudo funciona, só que sem lembrar.
 
 ## API
 
-`POST /api/avaliacoes`
+`POST /api/avaliacoes` — exige `Authorization: Bearer <token do Keycloak>` (exceto com `AUTH_HABILITADA=false`)
 
 ```json
 { "tema": "Desafios para o combate à desinformação no Brasil", "texto": "..." }
@@ -154,9 +187,9 @@ Resposta (resumida):
 }
 ```
 
-`GET /api/status` — informa se a chave está configurada e qual modelo está em uso.
+`GET /api/status` (público) — informa se a chave está configurada, qual modelo está em uso e, em `autenticacao`, se o login está ligado e em qual Keycloak/realm/cliente.
 
-Erros: `400` para entrada inválida (tema vazio, texto curto ou longo demais) e `502` quando a OpenAI falha (chave inválida, sem créditos, timeout). A mensagem vem no campo `mensagem`.
+Erros: `400` para entrada inválida (tema vazio, texto curto ou longo demais), `401` sem token ou com token inválido/expirado e `502` quando a OpenAI falha (chave inválida, sem créditos, timeout). A mensagem vem no campo `mensagem`.
 
 ## Limitações conhecidas (para a validação com o público-alvo)
 
@@ -164,4 +197,5 @@ Erros: `400` para entrada inválida (tema vazio, texto curto ou longo demais) e 
 - A contagem de linhas é aproximada (cerca de 65 caracteres por linha manuscrita).
 - Pequenas diferenças na citação dos trechos são toleradas, mas se o modelo parafrasear o trecho, o ponto de melhoria aparece sem destaque no texto.
 - Os limites de tamanho (300 a 6000 caracteres) estão duplicados no front (`utils/redacao.ts`) e no backend (`application.properties`); ao alterar um, altere o outro.
-- Não há login nem histórico completo: o navegador guarda só a última avaliação (e a anterior, para comparação).
+- Não há histórico completo no servidor: o navegador guarda só a última avaliação de cada estudante (e a anterior, para comparação).
+- O Keycloak roda em modo de desenvolvimento (`start-dev`, HTTP, admin `admin`/`admin`). Para publicar: use `kc start` com HTTPS e banco de dados próprio, troque a senha do admin, ajuste `redirectUris`/`webOrigins` do cliente para o domínio real e configure SMTP se quiser "esqueci minha senha".

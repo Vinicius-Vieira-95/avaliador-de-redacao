@@ -33,10 +33,19 @@ export interface AvaliacaoResponse {
   aviso: string;
 }
 
+/** Como o front deve fazer login; vem do backend em GET /api/status. */
+export interface ConfigAutenticacao {
+  habilitada: boolean;
+  url: string;
+  realm: string;
+  clientId: string;
+}
+
 /** Resposta de GET /api/status. */
 export interface StatusIA {
   iaConfigurada: boolean;
   modelo: string;
+  autenticacao?: ConfigAutenticacao;
 }
 
 /** Ponto de melhoria cujo trecho foi localizado no texto, com número de referência. */

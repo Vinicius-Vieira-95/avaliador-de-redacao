@@ -7,12 +7,18 @@
     </div>
   </div>
 
-  @switch (estadoStatus()) {
-    @case ('verificando') { <span class="status">verificando…</span> }
-    @case ('pronto') { <span class="status ok">IA pronta · {{ status()?.modelo }}</span> }
-    @case ('sem-chave') { <span class="status falha">Chave da OpenAI não configurada</span> }
-    @case ('offline') { <span class="status falha">Servidor indisponível</span> }
-  }
+  <div class="lado">
+    @switch (estadoStatus()) {
+      @case ('verificando') { <span class="status">verificando…</span> }
+      @case ('pronto') { <span class="status ok">IA pronta · {{ status()?.modelo }}</span> }
+      @case ('sem-chave') { <span class="status falha">Chave da OpenAI não configurada</span> }
+      @case ('offline') { <span class="status falha">Servidor indisponível</span> }
+    }
+    @if (usuario(); as nome) {
+      <span class="usuario">Olá, {{ nome }}</span>
+      <button type="button" class="sair" (click)="sair()">Sair</button>
+    }
+  </div>
 </header>
 
 <main class="layout">

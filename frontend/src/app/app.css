@@ -12,6 +12,14 @@
 .topo h1 { margin: 0; font-size: 28px; }
 .topo p { margin: 2px 0 0; color: var(--tinta-suave); }
 
+.lado { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.usuario { font-size: 14px; font-weight: 500; }
+.sair {
+  border: 1px solid var(--linha); border-radius: 999px; background: var(--cartao); color: var(--tinta-suave);
+  padding: 5px 12px; font: 500 13px "Inter", sans-serif; cursor: pointer;
+}
+.sair:hover { border-color: var(--destaque); color: var(--destaque); }
+
 .status {
   font-size: 13px; padding: 6px 12px; border-radius: 999px;
   background: var(--linha); color: var(--tinta-suave); white-space: nowrap;
@@ -49,7 +57,7 @@
 
 /* Impressão / PDF: só o resultado, para o estudante levar ao professor. */
 @media print {
-  .entrada, .status, .rodape { display: none; }
+  .entrada, .lado, .rodape { display: none; }
   .topo { padding: 0 0 8px; }
   .layout { display: block; padding: 0; }
   .painel { border: 0; padding: 0; }

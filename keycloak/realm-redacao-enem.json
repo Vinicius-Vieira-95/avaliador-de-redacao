@@ -1,0 +1,45 @@
+{
+  "realm": "redacao-enem",
+  "displayName": "Corretor de Redação ENEM",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "rememberMe": true,
+  "resetPasswordAllowed": false,
+  "passwordPolicy": "length(8)",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["pt-BR"],
+  "defaultLocale": "pt-BR",
+  "clients": [
+    {
+      "clientId": "corretor-frontend",
+      "name": "Corretor de Redação (front Angular)",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "rootUrl": "http://localhost:4200",
+      "baseUrl": "/",
+      "redirectUris": ["http://localhost:4200/*"],
+      "webOrigins": ["http://localhost:4200"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:4200/*"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "estudante",
+      "enabled": true,
+      "firstName": "Estudante",
+      "lastName": "de Teste",
+      "email": "estudante@exemplo.com",
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "estudante123", "temporary": false }]
+    }
+  ]
+}

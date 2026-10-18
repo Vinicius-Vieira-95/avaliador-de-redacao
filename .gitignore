@@ -7,6 +7,9 @@ frontend/node_modules/
 frontend/dist/
 frontend/.angular/
 
+# Keycloak baixado pelo keycloak/iniciar-keycloak.ps1
+keycloak/servidor/
+
 # IDEs e segredos
 .idea/
 *.iml

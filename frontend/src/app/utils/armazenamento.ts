@@ -5,8 +5,21 @@ import { AvaliacaoRequest, AvaliacaoResponse } from '../models/avaliacao.model';
  * ao recarregar a página. O armazenamento pode estar indisponível (aba anônima, cookies bloqueados);
  * nesse caso tudo segue funcionando, só que sem lembrar.
  */
-const CHAVE_RASCUNHO = 'corretor-enem:rascunho';
-const CHAVE_AVALIACAO = 'corretor-enem:avaliacao';
+const PREFIXO = 'corretor-enem';
+
+/**
+ * Identificador do usuário logado (o `sub` do Keycloak). Separa os dados de cada estudante,
+ * para quem usa o mesmo computador (laboratório da escola) não ver a redação do outro.
+ */
+let dono = '';
+
+export function definirDonoDosDados(id: string): void {
+  dono = id;
+}
+
+function chave(nome: string): string {
+  return dono ? `${PREFIXO}:${dono}:${nome}` : `${PREFIXO}:${nome}`;
+}
 
 /** Avaliação exibida na tela, com o texto que a originou e a avaliação anterior do mesmo tema. */
 export interface AvaliacaoSalva {
@@ -34,21 +47,21 @@ function gravar(chave: string, valor: unknown): void {
 }
 
 export function lerRascunho(): AvaliacaoRequest | null {
-  const rascunho = ler<AvaliacaoRequest>(CHAVE_RASCUNHO);
+  const rascunho = ler<AvaliacaoRequest>(chave('rascunho'));
   return typeof rascunho?.tema === 'string' && typeof rascunho?.texto === 'string' ? rascunho : null;
 }
 
 export function salvarRascunho(rascunho: AvaliacaoRequest): void {
-  gravar(CHAVE_RASCUNHO, rascunho);
+  gravar(chave('rascunho'), rascunho);
 }
 
 export function lerAvaliacaoSalva(): AvaliacaoSalva | null {
-  const salva = ler<AvaliacaoSalva>(CHAVE_AVALIACAO);
+  const salva = ler<AvaliacaoSalva>(chave('avaliacao'));
   return Array.isArray(salva?.avaliacao?.competencias) && typeof salva?.texto === 'string' ? salva : null;
 }
 
 export function salvarAvaliacao(salva: AvaliacaoSalva): void {
-  gravar(CHAVE_AVALIACAO, salva);
+  gravar(chave('avaliacao'), salva);
 }
 
 /** Considera o mesmo tema ignorando maiúsculas e espaços, para comparar reescritas. */

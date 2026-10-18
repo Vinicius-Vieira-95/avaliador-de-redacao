@@ -1,5 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 
+import { AutenticacaoService } from './auth/autenticacao.service';
 import { FormularioRedacao } from './components/formulario-redacao/formulario-redacao';
 import { ResultadoAvaliacao } from './components/resultado-avaliacao/resultado-avaliacao';
 import { AvaliacaoRequest, StatusIA } from './models/avaliacao.model';
@@ -16,6 +17,9 @@ type EstadoStatus = 'verificando' | 'pronto' | 'sem-chave' | 'offline';
 })
 export class App implements OnInit {
   private readonly avaliacaoService = inject(AvaliacaoService);
+  private readonly autenticacao = inject(AutenticacaoService);
+
+  protected readonly usuario = this.autenticacao.usuario;
 
   protected readonly estadoStatus = signal<EstadoStatus>('verificando');
   protected readonly status = signal<StatusIA | null>(null);
@@ -36,6 +40,10 @@ export class App implements OnInit {
       },
       error: () => this.estadoStatus.set('offline'),
     });
+  }
+
+  protected sair(): void {
+    void this.autenticacao.sair();
   }
 
   protected avaliar(request: AvaliacaoRequest): void {
