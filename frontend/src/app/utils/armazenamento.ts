@@ -64,6 +64,18 @@ export function salvarAvaliacao(salva: AvaliacaoSalva): void {
   gravar(chave('avaliacao'), salva);
 }
 
+/** Nota que o estudante quer alcançar, mostrada no painel de desempenho. */
+export const META_PADRAO = 800;
+
+export function lerMeta(): number {
+  const meta = ler<number>(chave('meta'));
+  return typeof meta === 'number' && meta > 0 && meta <= 1000 ? meta : META_PADRAO;
+}
+
+export function salvarMeta(meta: number): void {
+  gravar(chave('meta'), meta);
+}
+
 /** Considera o mesmo tema ignorando maiúsculas e espaços, para comparar reescritas. */
 export function mesmoTema(a: string, b: string): boolean {
   const normalizar = (tema: string) => tema.trim().replace(/\s+/g, ' ').toLocaleLowerCase('pt-BR');

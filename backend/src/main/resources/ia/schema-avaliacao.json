@@ -1,7 +1,7 @@
 {
   "type": "object",
   "additionalProperties": false,
-  "required": ["anulada", "motivoAnulacao", "competencias", "comentarioGeral", "proximosPassos"],
+  "required": ["anulada", "motivoAnulacao", "competencias", "comentarioGeral", "proximosPassos", "linguagem"],
   "properties": {
     "anulada": { "type": "boolean" },
     "motivoAnulacao": { "type": "string" },
@@ -33,6 +33,31 @@
       }
     },
     "comentarioGeral": { "type": "string" },
-    "proximosPassos": { "type": "array", "items": { "type": "string" } }
+    "proximosPassos": { "type": "array", "items": { "type": "string" } },
+    "linguagem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nivel", "resumo", "desvios"],
+      "properties": {
+        "nivel": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+        "resumo": { "type": "string" },
+        "desvios": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["categoria", "quantidade"],
+            "properties": {
+              "categoria": {
+                "type": "string",
+                "enum": ["ORTOGRAFIA", "ACENTUACAO", "CONCORDANCIA", "REGENCIA", "CRASE", "PONTUACAO",
+                         "COLOCACAO_PRONOMINAL", "ESTRUTURA_SINTATICA", "INFORMALIDADE", "REPETICAO"]
+              },
+              "quantidade": { "type": "integer" }
+            }
+          }
+        }
+      }
+    }
   }
 }

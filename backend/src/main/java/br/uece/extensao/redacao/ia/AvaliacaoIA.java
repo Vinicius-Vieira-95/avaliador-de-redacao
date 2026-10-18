@@ -11,7 +11,14 @@ public record AvaliacaoIA(
         String motivoAnulacao,
         List<CompetenciaIA> competencias,
         String comentarioGeral,
-        List<String> proximosPassos) {
+        List<String> proximosPassos,
+        LinguagemIA linguagem) {
+
+    /** Sem análise de linguagem; o serviço estima o nível pela Competência 1. */
+    public AvaliacaoIA(boolean anulada, String motivoAnulacao, List<CompetenciaIA> competencias,
+            String comentarioGeral, List<String> proximosPassos) {
+        this(anulada, motivoAnulacao, competencias, comentarioGeral, proximosPassos, null);
+    }
 
     public record CompetenciaIA(
             int numero,
@@ -22,5 +29,11 @@ public record AvaliacaoIA(
     }
 
     public record PontoMelhoriaIA(String trecho, String problema, String sugestao) {
+    }
+
+    public record LinguagemIA(int nivel, String resumo, List<DesvioIA> desvios) {
+    }
+
+    public record DesvioIA(String categoria, int quantidade) {
     }
 }

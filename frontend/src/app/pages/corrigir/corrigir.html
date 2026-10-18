@@ -1,0 +1,30 @@
+<app-formulario-redacao
+  class="painel entrada"
+  [carregando]="carregando()"
+  [erro]="erro()"
+  (enviar)="avaliar($event)" />
+
+<section id="resultado" class="painel" aria-live="polite">
+  @if (carregando()) {
+    <div class="carregando">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Lendo sua redação com os critérios do ENEM…<br><small>pode levar até um minuto</small></p>
+    </div>
+  } @else if (avaliacao(); as resultado) {
+    @if (resultado.id) {
+      <p class="no-historico">
+        Guardada no seu histórico · <a routerLink="/desempenho">ver minha evolução →</a>
+      </p>
+    }
+    <app-resultado-avaliacao [avaliacao]="resultado" [anterior]="anterior()" [texto]="textoAvaliado()" />
+  } @else {
+    <div class="vazio">
+      <p class="vazio-titulo">O resultado aparece aqui</p>
+      <p>
+        Você recebe uma nota estimada de 0 a 1000, a análise de cada competência, o nível da sua língua
+        portuguesa e os trechos do seu texto que merecem reescrita. Cada correção entra no seu
+        <a routerLink="/desempenho">painel de desempenho</a>.
+      </p>
+    </div>
+  }
+</section>

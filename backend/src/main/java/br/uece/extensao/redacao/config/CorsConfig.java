@@ -22,7 +22,7 @@ public class CorsConfig {
             @Value("${app.cors.origens-permitidas}") List<String> origensPermitidas) {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(origensPermitidas);
-        config.setAllowedMethods(List.of("GET", "POST"));
+        config.setAllowedMethods(List.of("GET", "POST", "DELETE"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

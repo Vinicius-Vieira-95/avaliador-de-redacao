@@ -1,0 +1,15 @@
+:host { display: block; --cor-linha: var(--cor, var(--azul)); }
+svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+.grade { stroke: var(--linha); stroke-width: 1; }
+.eixo { fill: var(--tinta-suave); font: 11px "Inter", sans-serif; }
+.meta { stroke: var(--ok); stroke-width: 1.5; stroke-dasharray: 6 5; }
+.meta-rotulo { fill: var(--ok); font: 600 11px "Inter", sans-serif; }
+
+.linha { fill: none; stroke: var(--cor-linha); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+
+.ponto { cursor: pointer; outline: none; }
+.ponto circle { fill: var(--cartao); stroke: var(--cor-linha); stroke-width: 2.5; }
+.ponto .alvo { fill: transparent; stroke: none; }
+.ponto:hover circle:not(.alvo), .ponto:focus-visible circle:not(.alvo) { fill: var(--cor-linha); }
+.ponto:focus-visible .alvo { stroke: var(--cor-linha); stroke-width: 1; stroke-dasharray: 2 2; }

@@ -12,10 +12,13 @@ import org.junit.jupiter.api.Test;
 import br.uece.extensao.redacao.domain.Competencia;
 import br.uece.extensao.redacao.dto.AvaliacaoRequest;
 import br.uece.extensao.redacao.dto.AvaliacaoResponse;
+import br.uece.extensao.redacao.dto.AvaliacaoResponse.LinguagemResponse;
 import br.uece.extensao.redacao.exception.IAIndisponivelException;
 import br.uece.extensao.redacao.exception.RedacaoInvalidaException;
 import br.uece.extensao.redacao.ia.AvaliacaoIA;
 import br.uece.extensao.redacao.ia.AvaliacaoIA.CompetenciaIA;
+import br.uece.extensao.redacao.ia.AvaliacaoIA.DesvioIA;
+import br.uece.extensao.redacao.ia.AvaliacaoIA.LinguagemIA;
 import br.uece.extensao.redacao.ia.AvaliacaoIA.PontoMelhoriaIA;
 
 class AvaliacaoServiceTest {
@@ -120,5 +123,38 @@ class AvaliacaoServiceTest {
 
         assertThrows(RedacaoInvalidaException.class,
                 () -> servico.avaliar(new AvaliacaoRequest("Tema", "Texto curto demais.")));
+    }
+
+    @Test
+    void normalizaAAnaliseDeLinguagem() {
+        AvaliacaoIA ia = new AvaliacaoIA(false, "", List.of(
+                competencia(1, 120), competencia(2, 160), competencia(3, 160), competencia(4, 160), competencia(5, 160)),
+                "", List.of(), new LinguagemIA(9, "Bom registro formal.", List.of(
+                        new DesvioIA("CRASE", 2), new DesvioIA("pontuacao", 4), new DesvioIA("CRASE", 1),
+                        new DesvioIA("INVENTADA", 5), new DesvioIA("ORTOGRAFIA", 0))));
+
+        LinguagemResponse linguagem = servico(ia).avaliar(new AvaliacaoRequest("Tema", TEXTO)).linguagem();
+
+        assertEquals(5, linguagem.nivel());
+        assertEquals("Excelente", linguagem.rotulo());
+        assertEquals("Bom registro formal.", linguagem.resumo());
+        // Categorias repetidas somadas; desconhecidas e quantidades zeradas descartadas; da maior para a menor.
+        assertEquals(List.of("PONTUACAO:4", "CRASE:3"),
+                linguagem.desvios().stream().map(d -> d.categoria() + ":" + d.quantidade()).toList());
+        assertEquals("Pontuação", linguagem.desvios().getFirst().rotulo());
+    }
+
+    @Test
+    void semAnaliseDaIAEstimaONivelPelaCompetencia1() {
+        AvaliacaoIA ia = new AvaliacaoIA(true, "Fuga ao tema", List.of(
+                competencia(1, 160), competencia(2, 0), competencia(3, 0), competencia(4, 0), competencia(5, 0)),
+                "", List.of());
+
+        AvaliacaoResponse resposta = servico(ia).avaliar(new AvaliacaoRequest("Tema", TEXTO));
+
+        // A anulação zera as notas, mas a linguagem do texto continua sendo a de quem tirou 160 na C1.
+        assertEquals(4, resposta.linguagem().nivel());
+        assertTrue(resposta.linguagem().desvios().isEmpty());
+        assertEquals(90, resposta.metricas().palavras());
     }
 }

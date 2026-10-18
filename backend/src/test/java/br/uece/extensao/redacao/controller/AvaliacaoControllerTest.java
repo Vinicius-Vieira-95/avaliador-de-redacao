@@ -1,5 +1,8 @@
 package br.uece.extensao.redacao.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -19,12 +22,14 @@ import tools.jackson.databind.json.JsonMapper;
 import br.uece.extensao.redacao.config.AuthProperties;
 import br.uece.extensao.redacao.config.OpenAiProperties;
 import br.uece.extensao.redacao.dto.AvaliacaoRequest;
+import br.uece.extensao.redacao.dto.AvaliacaoResponse;
 import br.uece.extensao.redacao.exception.IAIndisponivelException;
 import br.uece.extensao.redacao.exception.TratadorDeErros;
 import br.uece.extensao.redacao.ia.AvaliacaoIA;
 import br.uece.extensao.redacao.ia.AvaliacaoIA.CompetenciaIA;
 import br.uece.extensao.redacao.ia.AvaliadorIA;
 import br.uece.extensao.redacao.service.AvaliacaoService;
+import br.uece.extensao.redacao.service.HistoricoService;
 
 class AvaliacaoControllerTest {
 
@@ -51,7 +56,10 @@ class AvaliacaoControllerTest {
                 "modelo-teste", 300, 6000);
         OpenAiProperties props = new OpenAiProperties("sk-teste", "modelo-teste", "http://localhost", Duration.ofSeconds(5));
         AuthProperties auth = new AuthProperties(true, "http://localhost:8081", "redacao-enem", "corretor-frontend");
-        mockMvc = MockMvcBuilders.standaloneSetup(new AvaliacaoController(service, props, auth))
+        HistoricoService historico = mock(HistoricoService.class);
+        when(historico.registrar(any(), any(), any()))
+                .thenAnswer(chamada -> chamada.<AvaliacaoResponse>getArgument(2).comId(7L));
+        mockMvc = MockMvcBuilders.standaloneSetup(new AvaliacaoController(service, props, auth, historico))
                 .setControllerAdvice(new TratadorDeErros())
                 .build();
     }
@@ -62,6 +70,7 @@ class AvaliacaoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json.writeValueAsString(new AvaliacaoRequest("Tema", TEXTO))))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(7))
                 .andExpect(jsonPath("$.notaTotal").value(640))
                 .andExpect(jsonPath("$.competencias.length()").value(5))
                 .andExpect(jsonPath("$.proximosPassos[0]").value("reescreva a conclusão"));

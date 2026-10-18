@@ -3,7 +3,7 @@
     <span class="selo">ENEM</span>
     <div>
       <h1>Corretor de Redação</h1>
-      <p>Estimativa de nota pelas cinco competências, com os pontos exatos para melhorar.</p>
+      <p>Treine para a redação: nota pelas cinco competências, pontos exatos para melhorar e sua evolução.</p>
     </div>
   </div>
 
@@ -21,31 +21,15 @@
   </div>
 </header>
 
-<main class="layout">
-  <app-formulario-redacao
-    class="painel entrada"
-    [carregando]="carregando()"
-    [erro]="erro()"
-    (enviar)="avaliar($event)" />
+<nav class="abas" aria-label="Seções">
+  <a routerLink="/" routerLinkActive="ativa" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">
+    Corrigir redação
+  </a>
+  <a routerLink="/desempenho" routerLinkActive="ativa" ariaCurrentWhenActive="page">Meu desempenho</a>
+</nav>
 
-  <section id="resultado" class="painel" aria-live="polite">
-    @if (carregando()) {
-      <div class="carregando">
-        <div class="spinner" aria-hidden="true"></div>
-        <p>Lendo sua redação com os critérios do ENEM…<br><small>pode levar até um minuto</small></p>
-      </div>
-    } @else if (avaliacao(); as resultado) {
-      <app-resultado-avaliacao [avaliacao]="resultado" [anterior]="anterior()" [texto]="textoAvaliado()" />
-    } @else {
-      <div class="vazio">
-        <p class="vazio-titulo">O resultado aparece aqui</p>
-        <p>
-          Você recebe uma nota estimada de 0 a 1000, a análise de cada competência e os trechos
-          do seu texto que merecem reescrita.
-        </p>
-      </div>
-    }
-  </section>
+<main class="conteudo">
+  <router-outlet />
 </main>
 
 <footer class="rodape">Projeto de Extensão IV · UECE · 2026.2</footer>

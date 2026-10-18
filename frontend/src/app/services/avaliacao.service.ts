@@ -27,5 +27,5 @@ export function mensagemDeErro(erro: HttpErrorResponse): string {
   const mensagem = erro.error?.mensagem;
   return typeof mensagem === 'string' && mensagem
     ? mensagem
-    : `Erro inesperado ao avaliar a redação (HTTP ${erro.status}).`;
+    : `Erro inesperado no servidor (HTTP ${erro.status}).`;
 }

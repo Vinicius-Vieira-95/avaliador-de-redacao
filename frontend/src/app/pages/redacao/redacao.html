@@ -1,0 +1,21 @@
+<a class="voltar" routerLink="/desempenho">← Meu desempenho</a>
+
+@if (redacao(); as r) {
+  <div class="topo">
+    <div>
+      <h2>{{ r.tema }}</h2>
+      <p>Corrigida em {{ r.criadaEm | date: "dd/MM/yyyy 'às' HH:mm" }}</p>
+    </div>
+    <button type="button" class="reescrever" (click)="reescrever(r)">Reescrever esta redação</button>
+  </div>
+  <section class="painel">
+    <app-resultado-avaliacao [avaliacao]="r.avaliacao" [texto]="r.texto" />
+  </section>
+} @else if (erro()) {
+  <p class="alerta" role="alert">{{ erro() }}</p>
+} @else {
+  <div class="painel carregando">
+    <div class="spinner" aria-hidden="true"></div>
+    <p>Abrindo a redação…</p>
+  </div>
+}

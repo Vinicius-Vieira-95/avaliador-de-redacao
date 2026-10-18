@@ -1,7 +1,9 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { catchError, firstValueFrom, of } from 'rxjs';
 
+import { routes } from './app.routes';
 import { autenticacaoInterceptor } from './auth/autenticacao.interceptor';
 import { AutenticacaoService } from './auth/autenticacao.service';
 import { AvaliacaoService } from './services/avaliacao.service';
@@ -19,6 +21,7 @@ function iniciarAutenticacao(): Promise<void> {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withFetch(), withInterceptors([autenticacaoInterceptor])),
     provideAppInitializer(iniciarAutenticacao),
   ],

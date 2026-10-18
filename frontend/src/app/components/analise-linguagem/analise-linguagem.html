@@ -1,0 +1,58 @@
+@let l = linguagem();
+<app-nivel-linguagem [nivel]="l.nivel" [rotulo]="l.rotulo" />
+@if (l.resumo) {
+  <p class="resumo">{{ l.resumo }}</p>
+}
+
+@if (l.desvios.length) {
+  <p class="subtitulo">Desvios encontrados</p>
+  <ul class="chips">
+    @for (d of l.desvios; track d.categoria) {
+      <li class="chip desvio">{{ d.rotulo }} <strong>×{{ d.quantidade }}</strong></li>
+    }
+  </ul>
+} @else {
+  <p class="subtitulo">Nenhum desvio de norma contado pela IA.</p>
+}
+
+@if (metricas(); as m) {
+  <dl class="metricas">
+    <div>
+      <dt>Vocabulário variado</dt>
+      <dd>{{ m.riquezaVocabular }}%</dd>
+      <small>palavras diferentes</small>
+    </div>
+    <div>
+      <dt>Conectivos</dt>
+      <dd>{{ m.conectivos.length }}</dd>
+      <small>diferentes</small>
+    </div>
+    <div>
+      <dt>Palavras por frase</dt>
+      <dd>{{ m.palavrasPorFrase }}</dd>
+      <small>{{ m.frasesLongas ? m.frasesLongas + (m.frasesLongas === 1 ? ' frase longa' : ' frases longas') : 'nenhuma frase longa' }}</small>
+    </div>
+    <div>
+      <dt>Tamanho</dt>
+      <dd>{{ m.palavras }}</dd>
+      <small>palavras · {{ m.paragrafos }} parágrafos</small>
+    </div>
+  </dl>
+
+  @if (m.conectivos.length) {
+    <p class="subtitulo">Conectivos usados</p>
+    <ul class="chips">
+      @for (c of m.conectivos; track c) {
+        <li class="chip">{{ c }}</li>
+      }
+    </ul>
+  }
+  @if (m.palavrasRepetidas.length) {
+    <p class="subtitulo">Palavras mais repetidas <small>(troque algumas por sinônimos ou pronomes)</small></p>
+    <ul class="chips">
+      @for (p of m.palavrasRepetidas; track p.palavra) {
+        <li class="chip repetida">{{ p.palavra }} <strong>×{{ p.vezes }}</strong></li>
+      }
+    </ul>
+  }
+}

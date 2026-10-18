@@ -1,0 +1,184 @@
+<div class="cabecalho">
+  <div>
+    <h2>Meu desempenho</h2>
+    <p>Acompanhe suas notas, a competência que mais precisa de atenção e como está sua língua portuguesa.</p>
+  </div>
+  <a class="botao" routerLink="/">Corrigir nova redação</a>
+</div>
+
+@if (erro()) {
+  <p class="alerta" role="alert">{{ erro() }}</p>
+}
+
+@if (carregando()) {
+  <div class="painel carregando">
+    <div class="spinner" aria-hidden="true"></div>
+    <p>Montando seu painel…</p>
+  </div>
+} @else if (desempenho(); as d) {
+  @if (d.totalRedacoes === 0) {
+    <div class="painel vazio">
+      <p class="vazio-titulo">Você ainda não corrigiu nenhuma redação</p>
+      <p>Cada redação corrigida entra aqui: notas, evolução, pontos de melhoria e o nível da sua escrita.</p>
+      <a class="botao" routerLink="/">Corrigir minha primeira redação</a>
+    </div>
+  } @else {
+    <section class="cartoes" aria-label="Resumo">
+      <div class="painel cartao">
+        <span class="rotulo">Redações corrigidas</span>
+        <strong class="numero">{{ d.totalRedacoes }}</strong>
+        <small>{{ d.redacoesUltimos30Dias }} nos últimos 30 dias</small>
+      </div>
+      <div class="painel cartao">
+        <span class="rotulo">Média geral</span>
+        <strong class="numero">{{ d.mediaGeral }}</strong>
+        <small>de {{ notaMaxima }}</small>
+      </div>
+      <div class="painel cartao">
+        <span class="rotulo">Melhor nota</span>
+        <strong class="numero">{{ d.melhorNota }}</strong>
+        <small>de {{ notaMaxima }}</small>
+      </div>
+      <div class="painel cartao">
+        <span class="rotulo">Última nota</span>
+        <strong class="numero">{{ d.ultimaNota }}</strong>
+        @if (d.variacaoRecente !== null) {
+          <small class="tendencia"><app-variacao-nota [valor]="d.variacaoRecente" /> tendência recente</small>
+        } @else {
+          <small>corrija mais uma para ver a tendência</small>
+        }
+      </div>
+    </section>
+
+    <section class="painel meta">
+      <label for="meta">Minha meta</label>
+      <input id="meta" type="number" min="200" max="1000" step="20" [value]="meta()"
+             (change)="definirMeta($any($event.target).value)" />
+      <div class="progresso" role="progressbar" aria-label="Última nota em relação à meta"
+           aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="progressoMeta()">
+        <div [style.width.%]="progressoMeta()"></div>
+      </div>
+      <span class="meta-texto">
+        @if (faltaParaMeta() === 0) {
+          Meta alcançada na última redação! Que tal subir a meta?
+        } @else {
+          Faltam <strong>{{ faltaParaMeta() }}</strong> pontos em relação à última nota.
+        }
+      </span>
+    </section>
+
+    <section class="painel">
+      <div class="titulo-secao">
+        <h3>Evolução</h3>
+        <div class="series" role="group" aria-label="O que mostrar no gráfico">
+          @for (s of series; track s.valor) {
+            <button type="button" [class.ativa]="serie() === s.valor" [attr.aria-pressed]="serie() === s.valor"
+                    (click)="serie.set(s.valor)">{{ s.rotulo }}</button>
+          }
+        </div>
+      </div>
+      <app-grafico-evolucao [class]="'c' + serie()" [pontos]="pontos()" [maximo]="maximoSerie()"
+                            [meta]="serie() === 0 ? meta() : null" (selecionar)="abrir($event)" />
+      <p class="dica">Clique num ponto para rever aquela redação.</p>
+    </section>
+
+    <div class="duas-colunas">
+      <section class="painel">
+        <h3>Competências</h3>
+        <ul class="competencias">
+          @for (c of d.competencias; track c.numero) {
+            <li class="c{{ c.numero }}">
+              <div class="competencia-topo">
+                <span><strong>C{{ c.numero }}</strong> {{ c.nome }}</span>
+                @if (c.numero === d.competenciaMaisFraca && c.media < notaMaximaCompetencia) {
+                  <span class="selo fraca">precisa de atenção</span>
+                } @else if (c.numero === d.competenciaMaisForte && d.competenciaMaisForte !== d.competenciaMaisFraca) {
+                  <span class="selo forte">seu ponto forte</span>
+                }
+              </div>
+              <div class="barra"><div [style.width.%]="(c.media / notaMaximaCompetencia) * 100"></div></div>
+              <small>média {{ c.media }} · última {{ c.ultima }} · melhor {{ c.melhor }}</small>
+            </li>
+          }
+        </ul>
+      </section>
+
+      @if (d.linguagem; as l) {
+        <section class="painel">
+          <h3>Língua portuguesa</h3>
+          <app-nivel-linguagem [nivel]="l.nivelAtual" [rotulo]="l.rotuloAtual" />
+          <p class="dica">Nível médio nas últimas {{ redacoesNaJanela() }}: {{ l.nivelMedio }} de 5</p>
+          @if (l.resumoAtual) {
+            <p>{{ l.resumoAtual }}</p>
+          }
+
+          @if (l.metricasMedias; as m) {
+            <dl class="metricas">
+              <div><dt>Vocabulário variado</dt><dd>{{ m.riquezaVocabular }}%</dd></div>
+              <div><dt>Conectivos diferentes</dt><dd>{{ m.conectivos }}</dd></div>
+              <div><dt>Palavras por frase</dt><dd>{{ m.palavrasPorFrase }}</dd></div>
+              <div><dt>Palavras por redação</dt><dd>{{ m.palavras }}</dd></div>
+            </dl>
+          }
+
+          <h4>Desvios mais frequentes</h4>
+          @if (l.desviosFrequentes.length) {
+            <ul class="desvios">
+              @for (desvio of l.desviosFrequentes; track desvio.categoria) {
+                <li>
+                  <div class="desvio-topo">
+                    <strong>{{ desvio.rotulo }}</strong>
+                    <span>{{ desvio.ocorrencias }}× · em {{ desvio.redacoes }} de {{ redacoesNaJanela() }} redações</span>
+                  </div>
+                  <small>{{ desvio.dica }}</small>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="dica">Nenhum desvio de norma nas últimas redações. Continue assim!</p>
+          }
+        </section>
+      }
+    </div>
+
+    @if (d.recomendacoes.length) {
+      <section class="painel">
+        <h3>Seu plano de estudo</h3>
+        <ol class="recomendacoes">
+          @for (r of d.recomendacoes; track $index) {
+            <li><strong>{{ r.titulo }}</strong><p>{{ r.descricao }}</p></li>
+          }
+        </ol>
+      </section>
+    }
+
+    <section class="painel">
+      <h3>Histórico</h3>
+      <div class="tabela">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th><th>Tema</th><th>Nota</th>
+              <th class="detalhe">C1</th><th class="detalhe">C2</th><th class="detalhe">C3</th>
+              <th class="detalhe">C4</th><th class="detalhe">C5</th><th class="detalhe">Língua</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of historicoRecente(); track r.id) {
+              <tr>
+                <td>{{ r.criadaEm | date: 'dd/MM/yyyy' }}</td>
+                <td class="tema"><a [routerLink]="['/redacoes', r.id]">{{ r.tema }}</a></td>
+                <td><strong>{{ r.notaTotal }}</strong>@if (r.anulada) { <small class="anulada">anulada</small> }</td>
+                @for (nota of r.notas; track $index) {
+                  <td class="detalhe">{{ nota }}</td>
+                }
+                <td class="detalhe">{{ r.nivelLinguagem || '–' }}/5</td>
+                <td><button type="button" class="excluir" (click)="excluir(r)" [attr.aria-label]="'Excluir ' + r.tema">Excluir</button></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+}

@@ -44,6 +44,11 @@
                           (selecionarTrecho)="irParaTrecho($event)" />
 }
 
+@if (resultado.linguagem; as linguagem) {
+  <h3>Sua língua portuguesa</h3>
+  <app-analise-linguagem [linguagem]="linguagem" [metricas]="resultado.metricas" />
+}
+
 <h3>Seu texto com os trechos apontados</h3>
 <app-texto-marcado [texto]="texto()" [marcacoes]="marcacoes()" />
 

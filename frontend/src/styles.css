@@ -30,7 +30,24 @@ body {
 
 h1, h2, h3 { font-family: "Fraunces", Georgia, serif; }
 
+/* Blocos compartilhados pelas páginas. */
+.painel {
+  display: block; background: var(--cartao); border: 1px solid var(--linha);
+  border-radius: var(--raio); padding: 24px;
+}
+.carregando { text-align: center; padding: 80px 24px; color: var(--tinta-suave); }
+.spinner {
+  width: 40px; height: 40px; margin: 0 auto 16px; border-radius: 50%;
+  border: 4px solid var(--linha); border-top-color: var(--azul); animation: gira 1s linear infinite;
+}
+@keyframes gira { to { transform: rotate(360deg); } }
+.alerta {
+  margin: 0; padding: 12px 14px; border-radius: 10px;
+  background: var(--destaque-suave); color: var(--destaque); font-weight: 500;
+}
+
 @media print {
+  .painel { border: 0; padding: 0; }
   body { background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   app-cartao-competencia { break-inside: avoid; }
 }

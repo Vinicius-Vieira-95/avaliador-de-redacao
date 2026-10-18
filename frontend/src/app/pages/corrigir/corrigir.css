@@ -1,0 +1,21 @@
+:host {
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 20px;
+}
+.entrada { align-self: start; position: sticky; top: 16px; }
+
+.vazio { text-align: center; color: var(--tinta-suave); padding: 80px 24px; }
+.vazio-titulo { font-family: "Fraunces", serif; font-size: 22px; color: var(--tinta); margin-bottom: 4px; }
+.vazio a, .no-historico a { color: var(--azul); }
+
+.no-historico { margin: 0 0 14px; font-size: 13px; color: var(--ok); }
+
+@media (max-width: 900px) {
+  :host { grid-template-columns: 1fr; }
+  .entrada { position: static; }
+}
+
+/* Impressão / PDF: só o resultado, para o estudante levar ao professor. */
+@media print {
+  :host { display: block; }
+  .entrada, .no-historico { display: none; }
+}

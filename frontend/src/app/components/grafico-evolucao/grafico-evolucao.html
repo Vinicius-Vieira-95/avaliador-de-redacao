@@ -1,0 +1,27 @@
+@let d = desenho();
+<svg [attr.viewBox]="'0 0 ' + g.largura + ' ' + g.altura" role="img" [attr.aria-label]="descricao()">
+  @for (linha of d.grade; track linha.valor) {
+    <line class="grade" [attr.x1]="g.esquerda" [attr.x2]="g.largura - g.direita" [attr.y1]="linha.y" [attr.y2]="linha.y" />
+    <text class="eixo" [attr.x]="g.esquerda - 8" [attr.y]="linha.y + 4" text-anchor="end">{{ linha.valor }}</text>
+  }
+
+  @if (yMeta(); as y) {
+    <line class="meta" [attr.x1]="g.esquerda" [attr.x2]="g.largura - g.direita" [attr.y1]="y" [attr.y2]="y" />
+    <text class="meta-rotulo" [attr.x]="g.largura - g.direita" [attr.y]="y - 6" text-anchor="end">meta {{ meta() }}</text>
+  }
+
+  <path class="linha" [attr.d]="d.caminho" />
+
+  @for (p of d.pontos; track $index; let i = $index) {
+    @let info = pontos()[i];
+    <g class="ponto" tabindex="0" role="link" (click)="selecionar.emit(info.id)" (keydown.enter)="selecionar.emit(info.id)"
+       [attr.aria-label]="(info.data | date: 'dd/MM/yyyy') + ', ' + info.tema + ': ' + info.valor">
+      <title>{{ info.data | date: 'dd/MM/yyyy' }} · {{ info.tema }} · {{ info.valor }}</title>
+      <circle [attr.cx]="p.x" [attr.cy]="p.y" r="11" class="alvo" />
+      <circle [attr.cx]="p.x" [attr.cy]="p.y" r="5" />
+      @if (d.pontos.length <= 12 || i === 0 || i === d.pontos.length - 1) {
+        <text class="eixo" [attr.x]="p.x" [attr.y]="g.altura - 8" text-anchor="middle">{{ info.data | date: 'dd/MM' }}</text>
+      }
+    </g>
+  }
+</svg>

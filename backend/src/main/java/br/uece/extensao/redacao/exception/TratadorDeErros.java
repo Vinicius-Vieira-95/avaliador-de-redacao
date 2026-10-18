@@ -38,6 +38,11 @@ public class TratadorDeErros {
         return ResponseEntity.badRequest().body(new ErroResponse(e.getMessage()));
     }
 
+    @ExceptionHandler(RedacaoNaoEncontradaException.class)
+    public ResponseEntity<ErroResponse> naoEncontrada(RedacaoNaoEncontradaException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErroResponse(e.getMessage()));
+    }
+
     @ExceptionHandler(IAIndisponivelException.class)
     public ResponseEntity<ErroResponse> iaIndisponivel(IAIndisponivelException e) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(new ErroResponse(e.getMessage()));

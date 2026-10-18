@@ -27,38 +27,28 @@
 .status.ok { background: #dcfce7; color: var(--ok); }
 .status.falha { background: var(--destaque-suave); color: var(--destaque); }
 
-.layout {
-  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 20px;
-  max-width: 1240px; margin: 0 auto; padding: 16px 20px 32px;
+.abas {
+  display: flex; gap: 4px; max-width: 1240px; margin: 12px auto 0; padding: 0 20px;
+  border-bottom: 1px solid var(--linha);
 }
-.painel {
-  display: block; background: var(--cartao); border: 1px solid var(--linha);
-  border-radius: var(--raio); padding: 24px;
+.abas a {
+  padding: 10px 16px; margin-bottom: -1px; border-bottom: 3px solid transparent;
+  color: var(--tinta-suave); font-weight: 500; text-decoration: none;
 }
-.entrada { align-self: start; position: sticky; top: 16px; }
+.abas a:hover { color: var(--tinta); }
+.abas a.ativa { color: var(--azul); border-bottom-color: var(--azul); }
 
-.vazio { text-align: center; color: var(--tinta-suave); padding: 80px 24px; }
-.vazio-titulo { font-family: "Fraunces", serif; font-size: 22px; color: var(--tinta); margin-bottom: 4px; }
-
-.carregando { text-align: center; padding: 80px 24px; color: var(--tinta-suave); }
-.spinner {
-  width: 40px; height: 40px; margin: 0 auto 16px; border-radius: 50%;
-  border: 4px solid var(--linha); border-top-color: var(--azul); animation: gira 1s linear infinite;
-}
-@keyframes gira { to { transform: rotate(360deg); } }
+.conteudo { display: block; max-width: 1240px; margin: 0 auto; padding: 20px 20px 32px; }
 
 .rodape { text-align: center; color: var(--tinta-suave); font-size: 13px; padding: 0 20px 28px; }
 
 @media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
-  .entrada { position: static; }
   .topo { flex-direction: column; align-items: flex-start; }
 }
 
 /* Impressão / PDF: só o resultado, para o estudante levar ao professor. */
 @media print {
-  .entrada, .lado, .rodape { display: none; }
+  .lado, .abas, .rodape { display: none; }
   .topo { padding: 0 0 8px; }
-  .layout { display: block; padding: 0; }
-  .painel { border: 0; padding: 0; }
+  .conteudo { padding: 0; }
 }
