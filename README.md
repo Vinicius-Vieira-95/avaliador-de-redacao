@@ -54,7 +54,7 @@ cp application-local.properties.example application-local.properties   # Windows
 ./gradlew bootRun
 ```
 
-O `application-local.properties` está no `.gitignore` e fica fora de `src/main/resources`, então nunca vai para o Git nem para o `.jar`. **Nunca coloque a chave em `application.properties`.**
+O `application-local.properties` está no `.gitignore` e fica fora de `src/main/resources`, então nunca vai para o Git nem para o `.jar`. **Nunca coloque a chave em `application.yml`.**
 
 Ou, se preferir, defina a variável de ambiente (ela tem prioridade sobre o arquivo):
 
@@ -95,7 +95,7 @@ Abra http://localhost:4200. O `ng serve` repassa as chamadas `/api` para o backe
 | `KEYCLOAK_REALM`  | `redacao-enem`               | Realm                                       |
 | `KEYCLOAK_CLIENT_ID` | `corretor-frontend`       | Cliente público usado pelo front            |
 
-Limites de tamanho do texto e timeout ficam em `backend/src/main/resources/application.properties`.
+Limites de tamanho do texto e timeout ficam em `backend/src/main/resources/application.yml`.
 
 ## Testes
 
@@ -196,6 +196,6 @@ Erros: `400` para entrada inválida (tema vazio, texto curto ou longo demais), `
 - A nota é uma estimativa; o sistema avisa que não substitui o professor.
 - A contagem de linhas é aproximada (cerca de 65 caracteres por linha manuscrita).
 - Pequenas diferenças na citação dos trechos são toleradas, mas se o modelo parafrasear o trecho, o ponto de melhoria aparece sem destaque no texto.
-- Os limites de tamanho (300 a 6000 caracteres) estão duplicados no front (`utils/redacao.ts`) e no backend (`application.properties`); ao alterar um, altere o outro.
+- Os limites de tamanho (300 a 6000 caracteres) estão duplicados no front (`utils/redacao.ts`) e no backend (`application.yml`); ao alterar um, altere o outro.
 - Não há histórico completo no servidor: o navegador guarda só a última avaliação de cada estudante (e a anterior, para comparação).
 - O Keycloak roda em modo de desenvolvimento (`start-dev`, HTTP, admin `admin`/`admin`). Para publicar: use `kc start` com HTTPS e banco de dados próprio, troque a senha do admin, ajuste `redirectUris`/`webOrigins` do cliente para o domínio real e configure SMTP se quiser "esqueci minha senha".
