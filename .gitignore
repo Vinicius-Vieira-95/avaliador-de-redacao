@@ -12,3 +12,4 @@ frontend/.angular/
 *.iml
 .vscode/
 .env
+application-local.properties

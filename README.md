@@ -22,6 +22,19 @@ Abra dois terminais.
 
 **1. Backend** (porta 8080)
 
+A chave da OpenAI pode ficar num arquivo local, para não precisar defini-la a cada terminal:
+
+```bash
+cd backend
+cp application-local.properties.example application-local.properties   # Windows: copy
+# edite application-local.properties e preencha OPENAI_API_KEY
+./gradlew bootRun
+```
+
+O `application-local.properties` está no `.gitignore` e fica fora de `src/main/resources`, então nunca vai para o Git nem para o `.jar`. **Nunca coloque a chave em `application.properties`.**
+
+Ou, se preferir, defina a variável de ambiente (ela tem prioridade sobre o arquivo):
+
 Linux / macOS:
 ```bash
 cd backend
